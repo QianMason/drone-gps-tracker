@@ -10,19 +10,27 @@ import {
 } from "@react-google-maps/api"
 import { Icon, List, Header, Container, Table, Button, Form } from 'semantic-ui-react'
 import useWillMount from './willMount';
+import 'semantic-ui-css/semantic.min.css'
 
 const libraries = ["places"];
 const mapContainerStyle = {
-  width: '50vw',
-  height: '50vh',
+  width: '100vw',
+  height: '70vh',
 };
 
 
+
+// const center = {
+//   lat: 37.50580263609067,
+//   lng: -121.92406285266536
+// };
 
 const center = {
-  lat: 37.50580263609067,
-  lng: -121.92406285266536
+  lat: 37.340114,
+  lng: -121.8845447
 };
+
+
 // var path = [
 //   { lat: 18.566516, lng: -68.435996 },
 //   { lat: 18.5644, lng: -68.423036 },
@@ -165,6 +173,8 @@ const DroneMap = () => {
   const [marker, setMarker] = useState(null);
   const [count, setCount] = useState(0);
   const [path, setPath] = useState([]);
+  const [battery, setBattery] = useState(0);
+  const [velocity, setVelocity] = useState(0);
 
   const {isLoaded, loadError} = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
@@ -208,25 +218,40 @@ const DroneMap = () => {
     }
     fetch('https://api.thingspeak.com/channels/1443033/feeds.json?results=1', postOptions)
     .then(response => response.text())
-    .then(data => {console.log(data); grabLat(data, latLng)})
-    fetch('https://api.thingspeak.com/channels/1443157/feeds.json?results=1', postOptions)
-    .then(response => response.text())
-    .then(data => {console.log(data); grabLong(data, latLng)})
-    .then(() => setMarker(latLng));
+    .then(data => {grabLat(data, latLng)})
+    .then(() => {
+      fetch('https://api.thingspeak.com/channels/1443157/feeds.json?results=1', postOptions)
+      .then(response => response.text())
+      .then(data => {grabLong(data, latLng)})
+      .then(() => setMarker(latLng))
+      .then(() => setPath([latLng]))
+    })
+
   }, []);
 
   const updateMap = () => {
     console.log("update")
     console.log("path:", path)
-    if (count == 8) {
-      setCount(0)
-    } else {
-      setCount(count + 1)
+    var latLng = {}
+    const postOptions = {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
     }
-    setMarker(marker);
-    var pos = getNewPosition();
+    fetch('https://api.thingspeak.com/channels/1443033/feeds.json?results=1', postOptions)
+    .then(response => response.text())
+    .then(data => {console.log("FETCHEDLATDATA:", data); grabLat(data, latLng)})
+    .then(() => {
+      fetch('https://api.thingspeak.com/channels/1443157/feeds.json?results=1', postOptions)
+      .then(response => response.text())
+      .then(data => {console.log("FETCHEDLONGDATA:", data); grabLong(data, latLng)})
+      .then(() => setMarker({lat: parseFloat(latLng.lat), lng: parseFloat(latLng.lng)}))
+      .then(() => {
+        var pos = getNewPosition();
+        setPath([...path, pos]);
+      })
 
-    setPath([...path, pos]);
+    })
+
   }
 
 
@@ -245,10 +270,10 @@ const DroneMap = () => {
     <div>
       <GoogleMap
         mapContainerStyle={mapContainerStyle}
-        zoom={12}
+        zoom={13}
         center={center}
       >
-        <Marker position={marker}></Marker>
+        <Marker position={marker}>{console.log(marker)}</Marker>
         {/* {markers.map((marker) => (
           <Marker
             key={`${marker.lat}-${marker.lng}`}
@@ -259,6 +284,42 @@ const DroneMap = () => {
           <Polyline path={path}/>
 
       </GoogleMap>
+      <Table celled>
+        <Table.Header>
+            <Table.Row>
+              <Table.HeaderCell>Latitude</Table.HeaderCell>
+              <Table.HeaderCell>Longitude</Table.HeaderCell>
+              <Table.HeaderCell>Battery</Table.HeaderCell>
+              <Table.HeaderCell>Velocity</Table.HeaderCell>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            <Table.Row>
+              <Table.Cell>
+                <Header>
+                  {marker && marker.lat}
+                </Header>
+              </Table.Cell>
+              <Table.Cell>
+                <Header>
+                  {marker && marker.lng}
+                </Header>
+              </Table.Cell>
+              <Table.Cell>
+                <Header>
+                  {battery}
+                </Header>
+              </Table.Cell>
+              <Table.Cell>
+                <List>
+                  <Header>
+                    {velocity}
+                  </Header>
+                </List>
+              </Table.Cell>
+            </Table.Row>
+          </Table.Body>
+      </Table>
       <Button onClick={updateMap} primary>
           <Button.Content>
               Update Map
