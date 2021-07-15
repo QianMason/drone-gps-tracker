@@ -1,5 +1,6 @@
 import logo from './logo.svg'
 import DroneMap from './components/map'
+import DroneTest from './components/test'
 
 
 const App = () => {
@@ -18,9 +19,9 @@ export default App;
     var map = undefined;
     var marker = undefined;
     var position = [43, -89];
-    
+
     function initialize() {
-            
+
         var latlng = new google.maps.LatLng(position[0], position[1]);
         var myOptions = {
             zoom: 8,
@@ -28,19 +29,19 @@ export default App;
             mapTypeId: google.maps.MapTypeId.ROADMAP
         };
         map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
-    
+
         marker = new google.maps.Marker({
             position: latlng,
             map: map,
             title: "Your current location!"
         });
-    
+
         google.maps.event.addListener(map, 'click', function(me) {
             var result = [me.latLng.lat(), me.latLng.lng()];
             transition(result);
         });
     }
-    
+
     var numDeltas = 100;
     var delay = 10; //milliseconds
     var i = 0;
@@ -52,7 +53,7 @@ export default App;
         deltaLng = (result[1] - position[1])/numDeltas;
         moveMarker();
     }
-    
+
     function moveMarker(){
         position[0] += deltaLat;
         position[1] += deltaLng;
@@ -63,6 +64,6 @@ export default App;
             setTimeout(moveMarker, delay);
         }
     }
-    
+
 
 */

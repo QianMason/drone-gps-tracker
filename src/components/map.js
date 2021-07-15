@@ -17,6 +17,8 @@ const mapContainerStyle = {
   height: '50vh',
 };
 
+
+
 const center = {
   lat: 37.50580263609067,
   lng: -121.92406285266536
@@ -76,7 +78,7 @@ const markerPositions = [
       lng: -121.92406285266536
     },
     {
-      lat: 37.50595873039177, 
+      lat: 37.50595873039177,
       lng: -121.92124804422737
     },
     {
@@ -88,20 +90,20 @@ const markerPositions = [
       lng: -121.92419316591251
     },
     {
-      lat: 37.50856521250252, 
+      lat: 37.50856521250252,
       lng: -121.92692202454388
     },
     {
-      lat: 37.50856521250252, 
+      lat: 37.50856521250252,
       lng: -121.92692202454388
     },
     {
-      lat: 37.50666781166385,   
+      lat: 37.50666781166385,
       lng: -121.93168587776873
     },
     {
-      lat: 37.50618197875418, 
-      lng: -121.92757756098177  
+      lat: 37.50618197875418,
+      lng: -121.92757756098177
     }
 ]
 // const markerPositions = [
@@ -111,7 +113,7 @@ const markerPositions = [
 //       lng: -121.92406285266536
 //     },
 //     {
-//       lat: 37.50595873039177, 
+//       lat: 37.50595873039177,
 //       lng: -121.92124804422737
 //     },
 //     {
@@ -123,20 +125,20 @@ const markerPositions = [
 //       lng: -121.92419316591251
 //     },
 //     {
-//       lat: 37.50856521250252, 
+//       lat: 37.50856521250252,
 //       lng: -121.92692202454388
 //     },
 //     {
-//       lat: 37.50856521250252, 
+//       lat: 37.50856521250252,
 //       lng: -121.92692202454388
 //     },
 //     {
-//       lat: 37.50666781166385,   
+//       lat: 37.50666781166385,
 //       lng: -121.93168587776873
 //     },
 //     {
-//       lat: 37.50618197875418, 
-//       lng: -121.92757756098177  
+//       lat: 37.50618197875418,
+//       lng: -121.92757756098177
 //     }
 //   ],
 //   [
@@ -183,20 +185,20 @@ const DroneMap = () => {
     */
     // otherwise, default code
     return marker
-  } 
+  }
 
   const grabLat = (data, latLng) => {
     const obj = JSON.parse(data)
     console.log(obj.feeds[0].field1);
     latLng.lat = parseFloat(obj.feeds[0].field1);
-  } 
+  }
 
   const grabLong = (data, latLng) => {
     const obj = JSON.parse(data)
     console.log(obj.feeds[0].field1);
     latLng.lng = parseFloat(obj.feeds[0].field1);
-  } 
-  
+  }
+
 
   useEffect(() => {
     var latLng = {}
@@ -210,7 +212,7 @@ const DroneMap = () => {
     fetch('https://api.thingspeak.com/channels/1443157/feeds.json?results=1', postOptions)
     .then(response => response.text())
     .then(data => {console.log(data); grabLong(data, latLng)})
-    setMarker(latLng);
+    .then(() => setMarker(latLng));
   }, []);
 
   const updateMap = () => {
@@ -226,7 +228,7 @@ const DroneMap = () => {
 
     setPath([...path, pos]);
   }
-  
+
 
   // useEffect(() => {
   //   this.interval = window.setInterval(moveObject, 1000);
@@ -241,9 +243,9 @@ const DroneMap = () => {
 
   return (
     <div>
-      <GoogleMap 
-        mapContainerStyle={mapContainerStyle} 
-        zoom={12} 
+      <GoogleMap
+        mapContainerStyle={mapContainerStyle}
+        zoom={12}
         center={center}
       >
         <Marker position={marker}></Marker>
@@ -273,9 +275,9 @@ export default DroneMap;
     var map = undefined;
     var marker = undefined;
     var position = [43, -89];
-    
+
     function initialize() {
-            
+
         var latlng = new google.maps.LatLng(position[0], position[1]);
         var myOptions = {
             zoom: 8,
@@ -283,19 +285,19 @@ export default DroneMap;
             mapTypeId: google.maps.MapTypeId.ROADMAP
         };
         map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
-    
+
         marker = new google.maps.Marker({
             position: latlng,
             map: map,
             title: "Your current location!"
         });
-    
+
         google.maps.event.addListener(map, 'click', function(me) {
             var result = [me.latLng.lat(), me.latLng.lng()];
             transition(result);
         });
     }
-    
+
     var numDeltas = 100;
     var delay = 10; //milliseconds
     var i = 0;
@@ -307,7 +309,7 @@ export default DroneMap;
         deltaLng = (result[1] - position[1])/numDeltas;
         moveMarker();
     }
-    
+
     function moveMarker(){
         position[0] += deltaLat;
         position[1] += deltaLng;
@@ -318,6 +320,6 @@ export default DroneMap;
             setTimeout(moveMarker, delay);
         }
     }
-    
+
 
 */
